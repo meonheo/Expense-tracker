@@ -6,7 +6,7 @@
    ========================================================= */
 
 import {
-  WEEK_HEAD, pad, iso, dayLabel, daysInMonth, periodRange, monthRange,
+  WEEK_HEAD, pad, iso, dayLabel, daysInMonth, periodRange, monthRange, viewBounds,
   esc, vnd, short
 } from './util.js';
 import { store, deriveTargets, OUT_CATS, IN_CATS } from './store.js';
@@ -61,12 +61,15 @@ function txRow(t, S) {
 
 /* ---------- Chuyển tháng (dùng ở Sổ, Lịch, Biểu đồ) ---------- */
 function monthNav(S, T, right = '') {
-  const isCurrent = S.vy === T.getFullYear() && S.vm === T.getMonth();
+  const [first, last] = viewBounds(T);
+  const viewing = new Date(S.vy, S.vm, 1).getTime();
+  const atFirst = viewing <= first.getTime();
+  const atLast = viewing >= last.getTime();
   return `<div class="row sec-head">
     <div class="mnav">
-      <button class="icon-btn" data-a="mon" data-v="-1" aria-label="Tháng trước">${ICON.left}</button>
+      <button class="icon-btn" data-a="mon" data-v="-1" aria-label="Tháng trước" ${atFirst ? 'disabled' : ''}>${ICON.left}</button>
       <span class="h2">Tháng ${S.vm + 1}/${S.vy}</span>
-      <button class="icon-btn" data-a="mon" data-v="1" aria-label="Tháng sau" ${isCurrent ? 'disabled' : ''}>${ICON.right}</button>
+      <button class="icon-btn" data-a="mon" data-v="1" aria-label="Tháng sau" ${atLast ? 'disabled' : ''}>${ICON.right}</button>
     </div>${right}
   </div>`;
 }

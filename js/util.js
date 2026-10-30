@@ -49,6 +49,17 @@ export function periodRange(period, T) {
 
 export const monthRange = (y, m) => [iso(new Date(y, m, 1)), iso(new Date(y, m + 1, 0))];
 
+/* ---------- Khoảng tháng được xem ở Sổ / Lịch / Biểu đồ ---------- */
+/* Đổi 2 dòng này nếu muốn mở rộng (tháng tính từ 0: 9 = tháng 10, 11 = tháng 12) */
+const VIEW_FIRST = new Date(2026, 9, 1);   // 10/2026
+const VIEW_LAST = new Date(2027, 11, 1);   // 12/2027
+
+/** [tháng đầu, tháng cuối] — luôn bao gồm tháng hiện tại nếu lỡ nằm ngoài khoảng */
+export function viewBounds(T) {
+  const cur = new Date(T.getFullYear(), T.getMonth(), 1);
+  return [cur < VIEW_FIRST ? cur : VIEW_FIRST, cur > VIEW_LAST ? cur : VIEW_LAST];
+}
+
 /* ---------- Định dạng ---------- */
 export const esc = (s) =>
   String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

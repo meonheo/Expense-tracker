@@ -5,7 +5,7 @@
    Khi sửa danh sách file, tăng số phiên bản CACHE.
    ========================================================= */
 
-const CACHE = 'expense-tracker-v3';
+const CACHE = 'expense-tracker-v4';
 const ASSETS = [
   './',
   'index.html',

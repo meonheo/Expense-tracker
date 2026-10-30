@@ -6,7 +6,7 @@
    4. Khởi động (service worker, cập nhật khi mở lại app)
    ========================================================= */
 
-import { iso, today, digits, vnd } from './util.js';
+import { iso, today, digits, vnd, viewBounds } from './util.js';
 import { store, OUT_CATS, IN_CATS } from './store.js';
 import * as V from './views.js';
 
@@ -65,11 +65,12 @@ function go(tab) {
   window.scrollTo(0, 0);
 }
 
-/* ---------- Chuyển tháng, không vượt quá tháng hiện tại ---------- */
+/* ---------- Chuyển tháng, trong khoảng 10/2026 – 12/2027 (xem util.js) ---------- */
 function shiftMonth(step) {
   const T = today();
   const d = new Date(S.vy, S.vm + step, 1);
-  if (d > new Date(T.getFullYear(), T.getMonth(), 1)) return;
+  const [first, last] = viewBounds(T);
+  if (d < first || d > last) return;
   S.vy = d.getFullYear();
   S.vm = d.getMonth();
   const isCurrent = S.vy === T.getFullYear() && S.vm === T.getMonth();
