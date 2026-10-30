@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chi tiêu</string>
+    <string name="widget_name">Chi tiêu hôm nay</string>
+    <string name="widget_desc">Số tiền đã chi hôm nay so với target</string>
+    <string name="widget_label">Hôm nay · đã chi</string>
+    <string name="widget_add">Thêm khoản</string>
+</resources>

@@ -1,0 +1,77 @@
+/* =========================================================
+   App Android "Chi tiêu"
+   - Giao diện = các file web ở thư mục gốc repo (index.html, css, js, icons)
+     được copy vào app lúc build, nên sửa web là APK cũng đổi theo
+   - Số phiên bản lấy từ số lần build trên GitHub (BUILD_NUMBER)
+   ========================================================= */
+
+plugins {
+    id 'com.android.application'
+}
+
+/* ---------- Phiên bản ---------- */
+def buildNumber = (System.getenv('BUILD_NUMBER') ?: '1').toInteger()
+
+/* ---------- Copy giao diện web vào app ---------- */
+def webAssetsDir = layout.buildDirectory.dir('generated/web-assets').get().asFile
+
+def copyWebAssets = tasks.register('copyWebAssets', Copy) {
+    from(rootProject.file('..')) {
+        include 'index.html', 'manifest.webmanifest', 'css/**', 'js/**', 'icons/**'
+    }
+    into(new File(webAssetsDir, 'www'))
+}
+
+android {
+    namespace 'io.github.meonheo.expensetracker'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'io.github.meonheo.expensetracker'
+        minSdk 26          // Android 8.0 trở lên
+        targetSdk 36       // Android 16
+        versionCode buildNumber
+        versionName "1.0.${buildNumber}"
+    }
+
+    /* Khoá ký cố định → các bản sau cài đè được lên bản trước, không mất dữ liệu */
+    signingConfigs {
+        release {
+            storeFile file('release.jks')
+            storePassword 'chitieu-app'
+            keyAlias 'chitieu'
+            keyPassword 'chitieu-app'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main {
+            assets.srcDirs += [webAssetsDir]
+        }
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}
+
+tasks.named('preBuild') {
+    dependsOn copyWebAssets
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+}

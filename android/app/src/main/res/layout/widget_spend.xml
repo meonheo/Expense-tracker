@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget: Hôm nay đã chi / thanh tiến độ / còn lại · target / tháng này -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/w_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Dòng 1: nhãn + nút thêm -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/w_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/widget_label"
+            android:textColor="@color/w_text2"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/w_add"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/widget_add_bg"
+            android:contentDescription="@string/widget_add"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="+"
+            android:textColor="@color/w_add_text"
+            android:textSize="22sp" />
+    </LinearLayout>
+
+    <!-- Dòng 2: số tiền đã chi hôm nay -->
+    <TextView
+        android:id="@+id/w_spent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="serif"
+        android:maxLines="1"
+        android:text="0 ₫"
+        android:textColor="@color/w_text"
+        android:textSize="28sp" />
+
+    <!-- Dòng 3: thanh tiến độ (3 màu, chỉ hiện 1) -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:layout_marginTop="6dp">
+
+        <ProgressBar
+            android:id="@+id/w_bar_ok"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:max="100"
+            android:maxHeight="6dp"
+            android:minHeight="6dp"
+            android:progressDrawable="@drawable/widget_bar_ok" />
+
+        <ProgressBar
+            android:id="@+id/w_bar_warn"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:max="100"
+            android:maxHeight="6dp"
+            android:minHeight="6dp"
+            android:progressDrawable="@drawable/widget_bar_warn"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/w_bar_over"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:max="100"
+            android:maxHeight="6dp"
+            android:minHeight="6dp"
+            android:progressDrawable="@drawable/widget_bar_over"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <!-- Dòng 4: còn lại / target ngày -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/w_left"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:textColor="@color/w_text2"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/w_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textColor="@color/w_text2"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- Dòng 5: tháng này -->
+    <TextView
+        android:id="@+id/w_month"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:maxLines="1"
+        android:textColor="@color/w_text2"
+        android:textSize="12sp" />
+</LinearLayout>

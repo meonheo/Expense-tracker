@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Màu app (chế độ tối) -->
+    <color name="app_bg">#121211</color>
+
+    <!-- Widget -->
+    <color name="w_bg">#1D1D1B</color>
+    <color name="w_text">#F1EFE9</color>
+    <color name="w_text2">#A9A7A0</color>
+    <color name="w_track">#2A2A27</color>
+    <color name="w_add_bg">#F1EFE9</color>
+    <color name="w_add_text">#121211</color>
+    <color name="w_warn">#E6A640</color>
+    <color name="w_over">#F07A6C</color>
+</resources>

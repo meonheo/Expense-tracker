@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Màu app (chế độ sáng) — khớp css/style.css -->
+    <color name="app_bg">#F4F2EE</color>
+    <color name="ic_launcher_bg">#1E1E1E</color>
+
+    <!-- Widget -->
+    <color name="w_bg">#FFFFFF</color>
+    <color name="w_text">#1A1A18</color>
+    <color name="w_text2">#6B6A66</color>
+    <color name="w_track">#E8E5DF</color>
+    <color name="w_add_bg">#1A1A18</color>
+    <color name="w_add_text">#F4F2EE</color>
+    <color name="w_warn">#B8730D</color>
+    <color name="w_over">#C9392B</color>
+</resources>

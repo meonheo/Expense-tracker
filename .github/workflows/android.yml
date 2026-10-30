@@ -1,0 +1,61 @@
+# =========================================================
+# Build APK mỗi lần có code mới trên nhánh main
+# → đăng lên trang Releases của repo để tải về điện thoại
+# =========================================================
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v4
+
+      - name: Cài Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cài Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Cài Android 16 (API 36)
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Cài Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
+
+      - name: Build APK
+        working-directory: android
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: gradle assembleRelease --no-daemon --stacktrace
+
+      - name: Đặt tên file
+        run: cp android/app/build/outputs/apk/release/app-release.apk "ChiTieu-v1.0.${{ github.run_number }}.apk"
+
+      - name: Đăng lên Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NOTES: ${{ github.event.head_commit.message }}
+        run: |
+          TAG="v1.0.${{ github.run_number }}"
+          gh release create "$TAG" "ChiTieu-$TAG.apk" \
+            --title "Chi tiêu $TAG" \
+            --notes "${NOTES:-Bản build thủ công}" \
+            --latest

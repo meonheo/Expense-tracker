@@ -390,7 +390,7 @@ export function backup(S) {
   /* ----- Khôi phục ----- */
   h += `<div class="card">
     <div class="strong">Khôi phục từ file</div>
-    <div class="lbl" style="margin:2px 0 10px">Dùng khi đổi điện thoại hoặc lỡ xoá dữ liệu Chrome</div>
+    <div class="lbl" style="margin:2px 0 10px">Dùng khi đổi điện thoại, chuyển từ bản web sang app, hoặc lỡ mất dữ liệu</div>
     <label class="btn-wide file-btn">Chọn file sao lưu<input type="file" id="importFile" accept=".json,application/json"></label>
   </div>`;
 
@@ -408,7 +408,7 @@ export function backup(S) {
 
   h += `<div class="note lbl">
     Dữ liệu chỉ nằm trong điện thoại, không gửi lên mạng.<br>
-    Xoá dữ liệu Chrome hoặc gỡ app sẽ mất dữ liệu → nên xuất file định kỳ và lưu vào Google Drive.
+    Gỡ app hoặc xoá dữ liệu app sẽ mất dữ liệu → nên xuất file định kỳ và lưu vào Google Drive.
   </div>`;
   return h;
 }

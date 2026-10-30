@@ -3,14 +3,18 @@
    1. Trạng thái màn hình
    2. Vẽ giao diện
    3. Xử lý bấm nút / gõ phím / chọn file
-   4. Khởi động (service worker, cập nhật khi mở lại app)
+   4. Bản APK: widget, sao lưu qua Android, nút Back
+   5. Khởi động (service worker, cập nhật khi mở lại app)
    ========================================================= */
 
-import { iso, today, digits, vnd, viewBounds } from './util.js';
+import { iso, today, digits, vnd, viewBounds, periodRange } from './util.js';
 import { store, OUT_CATS, IN_CATS } from './store.js';
 import * as V from './views.js';
 
 const root = document.getElementById('app');
+
+/** Có giá trị khi chạy trong app APK (do MainActivity.java gắn vào), null khi chạy trên web */
+const NATIVE = window.AndroidBridge || null;
 
 /* =========================================================
    1. Trạng thái màn hình (không phải dữ liệu — dữ liệu ở store.js)
@@ -51,6 +55,7 @@ function render() {
     V.tabbar(S);
   S.msg = '';
   if (S.tab === 'target') V.targetSummary(S);
+  syncWidget();
 }
 
 function go(tab) {
@@ -133,11 +138,19 @@ function saveTargets() {
 /* ---------- Sao lưu ---------- */
 function exportBackup() {
   const text = store.exportText();
+  const fileName = `chi-tieu-sao-luu-${iso(today())}.json`;
+
+  // APK: Android mở hộp thoại chọn nơi lưu (Drive, Tải xuống…), lưu xong tự báo
+  if (NATIVE && NATIVE.saveBackup) {
+    NATIVE.saveBackup(text, fileName);
+    return;
+  }
+
   const blob = new Blob([text], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `chi-tieu-sao-luu-${iso(today())}.json`;
+  a.download = fileName;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -225,7 +238,48 @@ root.addEventListener('change', (e) => {
 });
 
 /* =========================================================
-   4. Khởi động
+   4. Bản APK: widget, sao lưu qua Android, nút Back
+   (Trên web các hàm này không được gọi tới)
+   ========================================================= */
+
+/** Gửi số liệu tóm tắt cho widget màn hình chính */
+function syncWidget() {
+  if (!NATIVE || !NATIVE.updateWidget) return;
+  const T = today();
+  const td = iso(T);
+  const [ws, we] = periodRange('week', T);
+  const [ms, me] = periodRange('month', T);
+  try {
+    NATIVE.updateWidget(JSON.stringify({
+      date: td, day: store.sum(td, td),
+      weekStart: ws, week: store.sum(ws, we),
+      month: td.slice(0, 7), monthSpent: store.sum(ms, me),
+      tgDay: store.targets.day
+    }));
+  } catch (err) { /* widget lỗi không được làm hỏng app */ }
+}
+
+/** Android báo kết quả (vd. đã lưu file sao lưu) */
+window.__nativeToast = (msg, isError) => { say(msg, isError ? 'err' : 'ok'); render(); };
+
+/** Mở từ nút + của widget */
+window.__nativeAction = (action) => { if (action === 'add') go('add'); };
+
+/** Nút Back: đang ở màn khác → về Tổng quan (true); đang ở Tổng quan → để Android thoát (false) */
+window.__nativeBack = () => {
+  if (S.tab === 'home') return false;
+  go('home');
+  return true;
+};
+
+/** Quay lại app từ nền */
+window.__nativeResume = () => {
+  if (S.tab !== 'add' && S.tab !== 'target') render();
+  else syncWidget();
+};
+
+/* =========================================================
+   5. Khởi động
    ========================================================= */
 
 // Mở lại app sau khi để nền (có thể đã sang ngày mới) → vẽ lại
@@ -233,8 +287,12 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && S.tab !== 'add' && S.tab !== 'target') render();
 });
 
-if ('serviceWorker' in navigator) {
+// Service worker chỉ dùng cho bản web (APK đã có sẵn file trong máy)
+if (!NATIVE && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
+
+// Mở từ nút + của widget khi app chưa chạy
+if (NATIVE && NATIVE.consumeAction && NATIVE.consumeAction() === 'add') S.tab = 'add';
 
 render();
