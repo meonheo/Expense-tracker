@@ -18,22 +18,36 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Lấy code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Cài Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
 
-      - name: Cài Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Cài Android 16 (API 36)
-        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      # Dùng SDK có sẵn trên máy build; thiếu thì tự tải công cụ dòng lệnh của Google
+      - name: Cài Android SDK + Android 16 (API 36)
+        run: |
+          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/android-sdk}}"
+          echo "SDK: $SDK"
+          SM="$SDK/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SM" ]; then
+            mkdir -p "$SDK/cmdline-tools"
+            for v in 13114758 11076708; do
+              curl -fsSLo /tmp/clt.zip "https://dl.google.com/android/repository/commandlinetools-linux-${v}_latest.zip" && break
+            done
+            rm -rf "$SDK/cmdline-tools/latest" "$SDK/cmdline-tools/cmdline-tools"
+            unzip -q /tmp/clt.zip -d "$SDK/cmdline-tools"
+            mv "$SDK/cmdline-tools/cmdline-tools" "$SDK/cmdline-tools/latest"
+          fi
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK" >> "$GITHUB_ENV"
+          yes | "$SM" --licenses > /dev/null || true
+          "$SM" --install "platforms;android-36" "build-tools;36.0.0" "platform-tools"
 
       - name: Cài Gradle
         uses: gradle/actions/setup-gradle@v4
