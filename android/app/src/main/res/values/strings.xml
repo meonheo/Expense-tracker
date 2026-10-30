@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Expense tracker</string>
-    <string name="widget_name">Today's spending</string>
+    <string name="widget_name">Today\'s spending</string>
     <string name="widget_desc">How much you have spent today</string>
     <string name="widget_label">Today</string>
     <string name="widget_add">Open Expense tracker</string>

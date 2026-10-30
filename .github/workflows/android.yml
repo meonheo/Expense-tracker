@@ -58,7 +58,18 @@ jobs:
         working-directory: android
         env:
           BUILD_NUMBER: ${{ github.run_number }}
-        run: gradle assembleRelease --no-daemon --stacktrace
+        run: |
+          set -o pipefail
+          gradle assembleRelease --no-daemon 2>&1 | tee build.log
+
+      # Build lỗi → đưa các dòng lỗi lên phần Annotations để đọc được nhanh
+      - name: Báo lỗi build
+        if: failure()
+        working-directory: android
+        run: |
+          grep -E "error:|ERROR|FAILURE|What went wrong|e: |Exception|failed" build.log | head -40 | while IFS= read -r line; do
+            echo "::error::${line}"
+          done
 
       - name: Đặt tên file
         run: cp android/app/build/outputs/apk/release/app-release.apk "ExpenseTracker-v1.0.${{ github.run_number }}.apk"
