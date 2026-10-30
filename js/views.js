@@ -9,7 +9,7 @@ import {
   WEEK_HEAD, pad, iso, dayLabel, daysInMonth, periodRange, monthRange,
   esc, vnd, short
 } from './util.js';
-import { store, OUT_CATS, IN_CATS } from './store.js';
+import { store, deriveTargets, OUT_CATS, IN_CATS } from './store.js';
 
 /* =========================================================
    1. Thành phần dùng chung
@@ -323,26 +323,41 @@ export function chart(S, T) {
 const moneyInput = (key, v) =>
   `<input class="money" data-k="${esc(key)}" inputmode="numeric" value="${Number(v).toLocaleString('vi-VN')}">`;
 
-export function target(S) {
-  if (!S.dr) S.dr = { tg: { ...store.targets }, ct: { ...store.catTargets } };
+export function target(S, T) {
+  if (!S.dr) S.dr = { day: store.targets.day, ct: { ...store.catTargets } };
   const D = S.dr;
+  const dim = daysInMonth(T.getFullYear(), T.getMonth());
+  const auto = (id, label, hint) =>
+    `<div class="row field"><span>${label}<br><span class="lbl">${hint}</span></span><span class="money ro" id="${id}"></span></div>`;
 
   let h = secHead('Đặt target', '<button class="btn-sm" data-a="tab" data-v="home">Đóng</button>');
-  h += `<div class="card"><div class="lbl" style="margin-bottom:4px">Target tổng (₫)</div>${[['day', 'Mỗi ngày'], ['week', 'Mỗi tuần'], ['month', 'Mỗi tháng']]
-    .map(([k, l]) => `<div class="row field"><span>${l}</span>${moneyInput(`tg|${k}`, D.tg[k])}</div>`).join('')}</div>`;
+
+  /* ----- Target tổng: chỉ nhập ngày, tuần / tháng tự nhân ----- */
+  h += `<div class="card"><div class="lbl" style="margin-bottom:4px">Target tổng (₫)</div>
+    <div class="row field"><span>Mỗi ngày</span>${moneyInput('day', D.day)}</div>
+    ${auto('autoWeek', 'Mỗi tuần', 'tự tính · × 7 ngày')}
+    ${auto('autoMonth', 'Mỗi tháng', `tự tính · × ${dim} ngày của tháng ${T.getMonth() + 1}`)}
+  </div>`;
+
+  /* ----- Theo danh mục ----- */
   h += `<div class="card"><div class="lbl" style="margin-bottom:4px">Theo danh mục, mỗi tháng (₫)</div>${OUT_CATS
     .map((c) => `<div class="row field"><span>${c}</span>${moneyInput(`ct|${c}`, D.ct[c])}</div>`).join('')}
     <div id="catsum" class="lbl" style="margin-top:8px"></div></div>`;
   return `${h}<div class="err" id="err"></div><button class="btn-primary" data-a="savet">Lưu target</button>`;
 }
 
-/** Cập nhật dòng "Tổng danh mục" khi đang gõ, không vẽ lại cả màn */
+/** Cập nhật số tự tính (tuần, tháng, tổng danh mục) khi đang gõ, không vẽ lại cả màn */
 export function targetSummary(S) {
-  const box = document.getElementById('catsum');
-  if (!box || !S.dr) return;
+  if (!S.dr) return;
+  const t = deriveTargets(S.dr.day);
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+
+  set('autoWeek', vnd(t.week));
+  set('autoMonth', vnd(t.month));
+
   const total = OUT_CATS.reduce((x, c) => x + (S.dr.ct[c] || 0), 0);
-  const over = total > S.dr.tg.month;
-  box.innerHTML = `<span style="color:${over ? 'var(--warn)' : 'var(--text-2)'}">Tổng danh mục ${vnd(total)} / target tháng ${vnd(S.dr.tg.month)}${over ? ' · đang vượt' : ''}</span>`;
+  const over = total > t.month;
+  set('catsum', `<span style="color:${over ? 'var(--warn)' : 'var(--text-2)'}">Tổng danh mục ${vnd(total)} / target tháng ${vnd(t.month)}${over ? ' · đang vượt' : ''}</span>`);
 }
 
 /* =========================================================

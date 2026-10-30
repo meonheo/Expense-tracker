@@ -117,11 +117,11 @@ function saveTx() {
 function saveTargets() {
   const D = S.dr;
   const errBox = document.getElementById('err');
-  if (!D.tg.day || !D.tg.week || !D.tg.month) {
-    errBox.textContent = 'Target ngày, tuần, tháng phải lớn hơn 0';
+  if (!D.day) {
+    errBox.textContent = 'Target mỗi ngày phải lớn hơn 0';
     return;
   }
-  if (!store.setTargets(D.tg, D.ct)) {
+  if (!store.setTargets(D.day, D.ct)) {
     errBox.textContent = SAVE_FAIL;
     return;
   }
@@ -194,14 +194,20 @@ root.addEventListener('click', (e) => {
   if (fn) fn(el.dataset.v);
 });
 
+/* ---------- Bản nháp target: khoá 'day' hoặc 'ct|<danh mục>' ---------- */
+function setDraft(k, n) {
+  if (k === 'day') S.dr.day = n;
+  else S.dr.ct[k.split('|')[1]] = n;
+}
+const getDraft = (k) => (k === 'day' ? S.dr.day : S.dr.ct[k.split('|')[1]]);
+
 /* ---------- Gõ chữ / số ---------- */
 root.addEventListener('input', (e) => {
   const t = e.target;
   if (t.id === 'note') S.note = t.value;
   else if (t.id === 'date') S.date = t.value;
   else if (t.dataset.k && S.dr) {
-    const [group, key] = t.dataset.k.split('|');
-    S.dr[group][key] = digits(t.value);
+    setDraft(t.dataset.k, digits(t.value));
     const errBox = document.getElementById('err');
     if (errBox) errBox.textContent = '';
     V.targetSummary(S);
@@ -213,8 +219,7 @@ root.addEventListener('change', (e) => {
   if (t.id === 'importFile' && t.files && t.files[0]) {
     readBackupFile(t.files[0]);
   } else if (t.dataset.k && S.dr) {
-    const [group, key] = t.dataset.k.split('|');
-    t.value = S.dr[group][key].toLocaleString('vi-VN');
+    t.value = getDraft(t.dataset.k).toLocaleString('vi-VN');
   }
 });
 

@@ -168,6 +168,7 @@ input {
 }
 input:focus { border-color: var(--accent); }
 input.money { width: 140px; text-align: right; }
+.money.ro { width: 140px; text-align: right; padding-right: 13px; font-weight: 600; } /* số tự tính, không sửa được */
 
 /* ---------- Giao dịch ---------- */
 .tx { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid var(--border); cursor: pointer; }

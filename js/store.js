@@ -5,6 +5,8 @@
    - Xuất / nhập file sao lưu
    ========================================================= */
 
+import { today, daysInMonth } from './util.js';
+
 /* ---------- Danh mục ---------- */
 export const OUT_CATS = ['Ăn uống', 'Đi lại', 'Nhà cửa', 'Mua sắm', 'Giải trí', 'Sức khoẻ', 'Khác'];
 export const IN_CATS = ['Lương', 'Freelance', 'Khác'];
@@ -16,7 +18,7 @@ const defaults = () => ({
   version: 1,
   nextId: 1,
   lastBackup: null,
-  tg: { day: 300000, week: 2000000, month: 8500000 },
+  tg: { day: 300000 },   // chỉ lưu target ngày; tuần / tháng tự tính
   ct: {
     'Ăn uống': 3500000, 'Đi lại': 1000000, 'Nhà cửa': 2200000, 'Mua sắm': 800000,
     'Giải trí': 500000, 'Sức khoẻ': 300000, 'Khác': 200000
@@ -35,7 +37,7 @@ function normalize(raw) {
   if (!raw || typeof raw !== 'object') throw new Error('Dữ liệu không hợp lệ');
   const d = defaults();
 
-  if (raw.tg) for (const k of ['day', 'week', 'month']) if (raw.tg[k] != null) d.tg[k] = money(raw.tg[k]);
+  if (raw.tg && raw.tg.day != null) d.tg.day = money(raw.tg.day);
   if (raw.ct) for (const c of OUT_CATS) if (raw.ct[c] != null) d.ct[c] = money(raw.ct[c]);
 
   const list = Array.isArray(raw.tx) ? raw.tx : [];
@@ -82,9 +84,15 @@ function save() {
   }
 }
 
+/* ---------- Target tuần / tháng tính từ target ngày ---------- */
+/** Tuần = ngày × 7; tháng = ngày × số ngày của tháng hiện tại (28–31) */
+export function deriveTargets(day, T = today()) {
+  return { day, week: day * 7, month: day * daysInMonth(T.getFullYear(), T.getMonth()) };
+}
+
 /* ---------- API dùng trong app ---------- */
 export const store = {
-  get targets() { return data.tg; },
+  get targets() { return deriveTargets(data.tg.day); },
   get catTargets() { return data.ct; },
   get count() { return data.tx.length; },
   get lastBackup() { return data.lastBackup; },
@@ -106,8 +114,8 @@ export const store = {
     return save();
   },
 
-  setTargets(tg, ct) {
-    data.tg = { ...tg };
+  setTargets(day, ct) {
+    data.tg = { day: money(day) };
     data.ct = { ...ct };
     return save();
   },
