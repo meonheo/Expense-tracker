@@ -1,8 +1,8 @@
 {
-  "name": "Chi tiêu",
-  "short_name": "Chi tiêu",
-  "description": "Theo dõi chi tiêu hằng ngày, đặt target ngày, tuần, tháng",
-  "lang": "vi",
+  "name": "Expense tracker",
+  "short_name": "Expenses",
+  "description": "Track daily spending against day, week and month targets",
+  "lang": "en",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

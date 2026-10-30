@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget 2×1: "Today" + số tiền (vẽ bằng font DIN thành ảnh) + nút +
+     Có 2 bộ ảnh: _l (máy đang sáng) và _d (máy đang tối).
+     layout/ hiện bộ _l, layout-night/ hiện bộ _d — launcher tự chọn theo chế độ máy. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/w_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="14dp"
+    android:paddingEnd="8dp">
+
+    <!-- Chữ: Today + số tiền -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/w_label_l"
+                android:layout_width="match_parent"
+                android:layout_height="13dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitStart"
+                android:visibility="gone" />
+            <ImageView
+                android:id="@+id/w_label_d"
+                android:layout_width="match_parent"
+                android:layout_height="13dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitStart"
+                android:visibility="visible" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp">
+            <ImageView
+                android:id="@+id/w_amount_l"
+                android:layout_width="match_parent"
+                android:layout_height="24dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitStart"
+                android:visibility="gone" />
+            <ImageView
+                android:id="@+id/w_amount_d"
+                android:layout_width="match_parent"
+                android:layout_height="24dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitStart"
+                android:visibility="visible" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- Nút + -->
+    <FrameLayout
+        android:id="@+id/w_add"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_marginStart="6dp"
+        android:background="@drawable/widget_add_bg"
+        android:contentDescription="@string/widget_add">
+            <ImageView
+                android:id="@+id/w_plus_l"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+            <ImageView
+                android:id="@+id/w_plus_d"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center"
+                android:visibility="visible" />
+    </FrameLayout>
+</LinearLayout>

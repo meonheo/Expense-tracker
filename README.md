@@ -1,4 +1,4 @@
-# Chi tiêu — Expense tracker
+# Expense tracker
 
 Web app (PWA) theo dõi chi tiêu hằng ngày trên điện thoại: nhập nhanh khoản chi/thu, đặt target ngày / tuần / tháng và theo danh mục, xem sổ, lịch tháng, biểu đồ.
 
@@ -6,9 +6,9 @@ Dữ liệu chỉ lưu trong trình duyệt của điện thoại, không gửi 
 
 ## Cài app Android (APK, có widget)
 
-1. Vào trang **Releases** của repo → bản mới nhất → tải file `ChiTieu-v1.0.x.apk`
+1. Vào trang **Releases** của repo → bản mới nhất → tải file `ExpenseTracker-v1.0.x.apk`
 2. Mở file → cho phép cài từ nguồn này → Cài đặt
-3. Widget: nhấn giữ màn hình chính → Tiện ích (Widgets) → **Chi tiêu**
+3. Widget: nhấn giữ màn hình chính → Tiện ích (Widgets) → **Expense tracker**
 4. Cập nhật: tải APK mới hơn và cài đè, dữ liệu giữ nguyên
 
 Mỗi lần có code mới trên nhánh `main`, GitHub Actions tự build APK (xem `.github/workflows/android.yml`).
@@ -38,6 +38,7 @@ js/store.js           dữ liệu: lưu, tính tổng, sao lưu, danh mục
 js/views.js           giao diện từng màn hình
 js/app.js             trạng thái + xử lý thao tác
 icons/                icon app
+fonts/                font DIN (Medium / Bold / Black) dùng cho app và widget
 android/              app Android: WebView chứa giao diện web + widget
   app/src/main/java/…/MainActivity.java  màn hình chính, cầu nối JS ↔ Android
   app/src/main/java/…/SpendWidget.java   widget màn hình chính

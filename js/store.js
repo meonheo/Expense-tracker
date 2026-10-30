@@ -8,8 +8,15 @@
 import { today, daysInMonth } from './util.js';
 
 /* ---------- Danh mục ---------- */
-export const OUT_CATS = ['Ăn uống', 'Đi lại', 'Nhà cửa', 'Mua sắm', 'Giải trí', 'Sức khoẻ', 'Khác'];
-export const IN_CATS = ['Lương', 'Freelance', 'Khác'];
+export const OUT_CATS = ['Food', 'Transport', 'Home', 'Shopping', 'Entertainment', 'Health', 'Other'];
+export const IN_CATS = ['Salary', 'Freelance', 'Other'];
+
+/* Tên danh mục tiếng Việt ở bản cũ / file sao lưu cũ → tên mới */
+const LEGACY = {
+  'Ăn uống': 'Food', 'Đi lại': 'Transport', 'Nhà cửa': 'Home', 'Mua sắm': 'Shopping',
+  'Giải trí': 'Entertainment', 'Sức khoẻ': 'Health', 'Khác': 'Other', 'Lương': 'Salary'
+};
+const catName = (c) => LEGACY[c] || c;
 
 /* ---------- Mặc định khi mới cài ---------- */
 const KEY = 'expense-tracker:v1';
@@ -20,8 +27,8 @@ const defaults = () => ({
   lastBackup: null,
   tg: { day: 300000 },   // chỉ lưu target ngày; tuần / tháng tự tính
   ct: {
-    'Ăn uống': 3500000, 'Đi lại': 1000000, 'Nhà cửa': 2200000, 'Mua sắm': 800000,
-    'Giải trí': 500000, 'Sức khoẻ': 300000, 'Khác': 200000
+    Food: 3500000, Transport: 1000000, Home: 2200000, Shopping: 800000,
+    Entertainment: 500000, Health: 300000, Other: 200000
   },
   tx: []
 });
@@ -34,11 +41,11 @@ const money = (v) => {
 const isDate = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
 
 function normalize(raw) {
-  if (!raw || typeof raw !== 'object') throw new Error('Dữ liệu không hợp lệ');
+  if (!raw || typeof raw !== 'object') throw new Error('Invalid data');
   const d = defaults();
 
   if (raw.tg && raw.tg.day != null) d.tg.day = money(raw.tg.day);
-  if (raw.ct) for (const c of OUT_CATS) if (raw.ct[c] != null) d.ct[c] = money(raw.ct[c]);
+  if (raw.ct) for (const [k, v] of Object.entries(raw.ct)) if (OUT_CATS.includes(catName(k)) && v != null) d.ct[catName(k)] = money(v);
 
   const list = Array.isArray(raw.tx) ? raw.tx : [];
   d.tx = list
@@ -49,7 +56,7 @@ function normalize(raw) {
       return {
         id: i + 1,
         type: t.type,
-        cat: cats.includes(t.cat) ? t.cat : 'Khác',
+        cat: cats.includes(catName(t.cat)) ? catName(t.cat) : 'Other',
         amt: money(t.amt),
         note: String(t.note || '').slice(0, 200),
         date: t.date
@@ -146,7 +153,7 @@ export const store = {
   /** Đọc file sao lưu, trả về dữ liệu đã làm sạch (chưa ghi đè) */
   parseBackup(text) {
     const raw = JSON.parse(text);
-    if (!raw || !Array.isArray(raw.tx) || !raw.tg) throw new Error('Không phải file sao lưu');
+    if (!raw || !Array.isArray(raw.tx) || !raw.tg) throw new Error('Not a backup file');
     return normalize(raw);
   },
 

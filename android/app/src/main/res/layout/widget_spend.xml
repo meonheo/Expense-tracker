@@ -1,125 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Widget: Hôm nay đã chi / thanh tiến độ / còn lại · target / tháng này -->
+<!-- Widget 2×1: "Today" + số tiền (vẽ bằng font DIN thành ảnh) + nút +
+     Có 2 bộ ảnh: _l (máy đang sáng) và _d (máy đang tối).
+     layout/ hiện bộ _l, layout-night/ hiện bộ _d — launcher tự chọn theo chế độ máy. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/w_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_bg"
     android:gravity="center_vertical"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="horizontal"
+    android:paddingStart="14dp"
+    android:paddingEnd="8dp">
 
-    <!-- Dòng 1: nhãn + nút thêm -->
+    <!-- Chữ: Today + số tiền -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/w_label"
-            android:layout_width="0dp"
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/w_label_l"
+                android:layout_width="match_parent"
+                android:layout_height="13dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitStart"
+                android:visibility="visible" />
+            <ImageView
+                android:id="@+id/w_label_d"
+                android:layout_width="match_parent"
+                android:layout_height="13dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitStart"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/widget_label"
-            android:textColor="@color/w_text2"
-            android:textSize="13sp" />
-
-        <TextView
-            android:id="@+id/w_add"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@drawable/widget_add_bg"
-            android:contentDescription="@string/widget_add"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:text="+"
-            android:textColor="@color/w_add_text"
-            android:textSize="22sp" />
+            android:layout_marginTop="3dp">
+            <ImageView
+                android:id="@+id/w_amount_l"
+                android:layout_width="match_parent"
+                android:layout_height="24dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitStart"
+                android:visibility="visible" />
+            <ImageView
+                android:id="@+id/w_amount_d"
+                android:layout_width="match_parent"
+                android:layout_height="24dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitStart"
+                android:visibility="gone" />
+        </FrameLayout>
     </LinearLayout>
 
-    <!-- Dòng 2: số tiền đã chi hôm nay -->
-    <TextView
-        android:id="@+id/w_spent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="serif"
-        android:maxLines="1"
-        android:text="0 ₫"
-        android:textColor="@color/w_text"
-        android:textSize="28sp" />
-
-    <!-- Dòng 3: thanh tiến độ (3 màu, chỉ hiện 1) -->
+    <!-- Nút + -->
     <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="6dp"
-        android:layout_marginTop="6dp">
-
-        <ProgressBar
-            android:id="@+id/w_bar_ok"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:max="100"
-            android:maxHeight="6dp"
-            android:minHeight="6dp"
-            android:progressDrawable="@drawable/widget_bar_ok" />
-
-        <ProgressBar
-            android:id="@+id/w_bar_warn"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:max="100"
-            android:maxHeight="6dp"
-            android:minHeight="6dp"
-            android:progressDrawable="@drawable/widget_bar_warn"
-            android:visibility="gone" />
-
-        <ProgressBar
-            android:id="@+id/w_bar_over"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:max="100"
-            android:maxHeight="6dp"
-            android:minHeight="6dp"
-            android:progressDrawable="@drawable/widget_bar_over"
-            android:visibility="gone" />
+        android:id="@+id/w_add"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_marginStart="6dp"
+        android:background="@drawable/widget_add_bg"
+        android:contentDescription="@string/widget_add">
+            <ImageView
+                android:id="@+id/w_plus_l"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center"
+                android:visibility="visible" />
+            <ImageView
+                android:id="@+id/w_plus_d"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center"
+                android:visibility="gone" />
     </FrameLayout>
-
-    <!-- Dòng 4: còn lại / target ngày -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/w_left"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:maxLines="1"
-            android:textColor="@color/w_text2"
-            android:textSize="13sp" />
-
-        <TextView
-            android:id="@+id/w_target"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textColor="@color/w_text2"
-            android:textSize="13sp" />
-    </LinearLayout>
-
-    <!-- Dòng 5: tháng này -->
-    <TextView
-        android:id="@+id/w_month"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:maxLines="1"
-        android:textColor="@color/w_text2"
-        android:textSize="12sp" />
 </LinearLayout>

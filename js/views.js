@@ -6,7 +6,7 @@
    ========================================================= */
 
 import {
-  WEEK_HEAD, pad, iso, dayLabel, daysInMonth, periodRange, monthRange, viewBounds,
+  WEEK_HEAD, pad, iso, dayLabel, dayMonth, monthName, daysInMonth, periodRange, monthRange, viewBounds,
   esc, vnd, short
 } from './util.js';
 import { store, deriveTargets, OUT_CATS, IN_CATS } from './store.js';
@@ -36,7 +36,7 @@ const bar = (r, s, color) =>
   `<div class="bar"><i style="width:${Math.min(100, Math.round(r * 100))}%;background:${color || COLOR[s]}"></i></div>`;
 
 const remain = (left, s) =>
-  `<span style="color:${soft(s)}">${left >= 0 ? `Còn ${vnd(left)}` : `Vượt ${vnd(-left)}`}</span>`;
+  `<span style="color:${soft(s)}">${left >= 0 ? `${vnd(left)} left` : `${vnd(-left)} over`}</span>`;
 
 const segmented = (items, current, action) =>
   `<div class="seg">${items.map(([v, l]) =>
@@ -54,7 +54,7 @@ function txRow(t, S) {
     <div class="tx-main"><div>${esc(t.cat)}</div>${t.note ? `<div class="lbl">${esc(t.note)}</div>` : ''}</div>
     <div class="tx-side">
       <div style="color:${isIn ? 'var(--success)' : 'var(--text)'}">${isIn ? '+' : '−'}${vnd(t.amt)}</div>
-      ${S.open === t.id ? `<button class="btn-sm danger" data-a="del" data-v="${t.id}">Xoá</button>` : ''}
+      ${S.open === t.id ? `<button class="btn-sm danger" data-a="del" data-v="${t.id}">Delete</button>` : ''}
     </div>
   </div>`;
 }
@@ -67,9 +67,9 @@ function monthNav(S, T, right = '') {
   const atLast = viewing >= last.getTime();
   return `<div class="row sec-head">
     <div class="mnav">
-      <button class="icon-btn" data-a="mon" data-v="-1" aria-label="Tháng trước" ${atFirst ? 'disabled' : ''}>${ICON.left}</button>
-      <span class="h2">Tháng ${S.vm + 1}/${S.vy}</span>
-      <button class="icon-btn" data-a="mon" data-v="1" aria-label="Tháng sau" ${atLast ? 'disabled' : ''}>${ICON.right}</button>
+      <button class="icon-btn" data-a="mon" data-v="-1" aria-label="Previous month" ${atFirst ? 'disabled' : ''}>${ICON.left}</button>
+      <span class="h2">${monthName(S.vy, S.vm)}</span>
+      <button class="icon-btn" data-a="mon" data-v="1" aria-label="Next month" ${atLast ? 'disabled' : ''}>${ICON.right}</button>
     </div>${right}
   </div>`;
 }
@@ -80,9 +80,9 @@ function monthNav(S, T, right = '') {
 
 export function header(T) {
   return `<header class="top">
-    <div><div class="lbl">${pad(T.getDate())}/${pad(T.getMonth() + 1)}/${T.getFullYear()}</div><h1>Chi tiêu</h1></div>
+    <div><div class="lbl">${pad(T.getDate())}/${pad(T.getMonth() + 1)}/${T.getFullYear()}</div><h1>Expense tracker</h1></div>
     <div class="top-actions">
-      <button class="btn-sm" data-a="tab" data-v="backup">Sao lưu</button>
+      <button class="btn-sm" data-a="tab" data-v="backup">Backup</button>
       <button class="btn-sm" data-a="tab" data-v="target">Target</button>
     </div>
   </header>`;
@@ -94,9 +94,9 @@ export function toast(S) {
 }
 
 export function tabbar(S) {
-  const tabs = [['home', 'Tổng quan'], ['book', 'Sổ'], ['add', ''], ['cal', 'Lịch'], ['chart', 'Biểu đồ']];
+  const tabs = [['home', 'Overview'], ['book', 'Log'], ['add', ''], ['cal', 'Calendar'], ['chart', 'Chart']];
   return `<nav class="tabbar"><div class="tabbar-in">${tabs.map(([v, l]) => v === 'add'
-    ? `<button class="tab-add" data-a="tab" data-v="add" aria-label="Thêm khoản">${ICON.plus}</button>`
+    ? `<button class="tab-add" data-a="tab" data-v="add" aria-label="Add entry">${ICON.plus}</button>`
     : `<button class="tab ${S.tab === v ? 'on' : ''}" data-a="tab" data-v="${v}">${l}</button>`).join('')}</div></nav>`;
 }
 
@@ -112,16 +112,16 @@ export function home(S, T) {
   const r = target ? spent / target : 0;
   const s = level(r);
   const label = {
-    day: 'Hôm nay',
-    week: `Tuần ${dayLabel(a).slice(4)} – ${dayLabel(b).slice(4)}`,
-    month: `Tháng ${T.getMonth() + 1}/${T.getFullYear()}`
+    day: 'Today',
+    week: `Week ${dayMonth(a)} – ${dayMonth(b)}`,
+    month: monthName(T.getFullYear(), T.getMonth())
   }[S.period];
 
-  let h = segmented([['day', 'Ngày'], ['week', 'Tuần'], ['month', 'Tháng']], S.period, 'per');
+  let h = segmented([['day', 'Day'], ['week', 'Week'], ['month', 'Month']], S.period, 'per');
 
   /* ----- Số tổng so với target ----- */
   h += `<div class="card">
-    <div class="lbl">${label} · đã chi</div>
+    <div class="lbl">${label} · spent</div>
     <div class="big" style="color:${COLOR[s]}">${vnd(spent)}</div>
     <div class="row lbl">${remain(target - spent, s)}<span>Target ${vnd(target)}</span></div>
     ${bar(r, s)}
@@ -132,16 +132,16 @@ export function home(S, T) {
   const mIn = store.sum(ma, mb, 'in');
   const mOut = store.sum(ma, mb, 'out');
   h += `<div class="card">
-    <div class="lbl" style="margin-bottom:6px">Tháng ${T.getMonth() + 1} · thu và chi</div>
-    <div class="row"><span>Thu</span><span style="color:var(--success)">+${vnd(mIn)}</span></div>
-    <div class="row"><span>Chi</span><span>−${vnd(mOut)}</span></div>
-    <div class="row total"><span>Chênh lệch</span><span>${vnd(mIn - mOut)}</span></div>
+    <div class="lbl" style="margin-bottom:6px">${monthName(T.getFullYear(), T.getMonth())} · income and spending</div>
+    <div class="row"><span>Income</span><span style="color:var(--success)">+${vnd(mIn)}</span></div>
+    <div class="row"><span>Spending</span><span>−${vnd(mOut)}</span></div>
+    <div class="row total"><span>Balance</span><span>${vnd(mIn - mOut)}</span></div>
   </div>`;
 
   /* ----- Theo danh mục (target tháng, chia ra cho ngày/tuần) ----- */
   const dim = daysInMonth(T.getFullYear(), T.getMonth());
   const f = S.period === 'month' ? 1 : (S.period === 'week' ? 7 : 1) / dim;
-  h += `<div class="card"><div class="row lbl"><span>Theo danh mục</span><span>${S.period === 'month' ? 'target tháng' : 'chia từ target tháng'}</span></div>`;
+  h += `<div class="card"><div class="row lbl"><span>By category</span><span>${S.period === 'month' ? 'monthly target' : 'share of monthly target'}</span></div>`;
   for (const c of OUT_CATS) {
     const v = store.sum(a, b, 'out', c);
     const t = Math.round(store.catTargets[c] * f);
@@ -154,7 +154,7 @@ export function home(S, T) {
   /* ----- Các khoản hôm nay ----- */
   const td = iso(T);
   const list = store.between(td, td);
-  h += `<div class="card"><div class="lbl">Hôm nay</div>${list.length ? list.map((t) => txRow(t, S)).join('') : empty('Chưa có khoản nào hôm nay')}</div>`;
+  h += `<div class="card"><div class="lbl">Today</div>${list.length ? list.map((t) => txRow(t, S)).join('') : empty('No entries today')}</div>`;
   return h;
 }
 
@@ -169,34 +169,34 @@ export function add(S, T) {
   const cats = S.type === 'out' ? OUT_CATS : IN_CATS;
   if (!cats.includes(S.cat)) S.cat = cats[0];
 
-  let h = segmented([['out', 'Khoản chi'], ['in', 'Khoản thu']], S.type, 'type');
+  let h = segmented([['out', 'Expense'], ['in', 'Income']], S.type, 'type');
 
   /* ----- Số tiền + danh mục đang chọn ----- */
   h += `<div class="amount">
-    <div class="lbl">Số tiền</div>
+    <div class="lbl">Amount</div>
     <div class="big xl" id="amt">${amountText(S)}</div>
     <span class="pick">${esc(S.cat)}</span>
     <div class="err" id="err">${esc(S.err)}</div>
   </div>`;
 
   /* ----- Chọn danh mục ----- */
-  h += `<div class="lbl" style="margin-bottom:6px">Danh mục</div><div class="chips">${cats.map((c) => {
+  h += `<div class="lbl" style="margin-bottom:6px">Category</div><div class="chips">${cats.map((c) => {
     const on = S.cat === c;
     return `<button class="chip ${on ? 'on' : ''}" aria-pressed="${on}" data-a="cat" data-v="${esc(c)}">${on ? ICON.check : ''}${c}</button>`;
   }).join('')}</div>`;
 
   /* ----- Ghi chú + ngày ----- */
   h += `<div class="inputs">
-    <input id="note" placeholder="Ghi chú" value="${esc(S.note)}" maxlength="200" autocomplete="off">
+    <input id="note" placeholder="Note" value="${esc(S.note)}" maxlength="200" autocomplete="off">
     <input id="date" type="date" value="${S.date}" max="${iso(T)}">
   </div>`;
 
   /* ----- Bàn phím số ----- */
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0', 'del'];
   h += `<div class="keypad">${keys.map((k) =>
-    `<button data-a="key" data-v="${k}" ${k === 'del' ? 'aria-label="Xoá số"' : ''}>${k === 'del' ? ICON.back : k}</button>`).join('')}</div>`;
+    `<button data-a="key" data-v="${k}" ${k === 'del' ? 'aria-label="Delete digit"' : ''}>${k === 'del' ? ICON.back : k}</button>`).join('')}</div>`;
 
-  return `${h}<button class="btn-primary" data-a="save">Lưu</button>`;
+  return `${h}<button class="btn-primary" data-a="save">Save</button>`;
 }
 
 /* =========================================================
@@ -209,19 +209,19 @@ export function book(S, T) {
   const days = [...new Set(list.map((t) => t.date))];
   const dayTg = store.targets.day;
 
-  let h = monthNav(S, T, `<span class="lbl">${list.length} khoản</span>`);
-  if (!days.length) return h + empty('Tháng này chưa có khoản nào');
+  let h = monthNav(S, T, `<span class="lbl">${list.length} ${list.length === 1 ? 'entry' : 'entries'}</span>`);
+  if (!days.length) return h + empty('No entries this month');
 
   for (const d of days.slice(0, S.lim)) {
     const items = list.filter((t) => t.date === d);
     const out = items.filter((t) => t.type === 'out').reduce((x, t) => x + t.amt, 0);
     const s = level(dayTg ? out / dayTg : 0);
     h += `<div class="card">
-      <div class="row"><span class="strong">${d === iso(T) ? 'Hôm nay' : dayLabel(d)}</span><span class="lbl" style="color:${soft(s)}">chi ${vnd(out)}</span></div>
+      <div class="row"><span class="strong">${d === iso(T) ? 'Today' : dayLabel(d)}</span><span class="lbl" style="color:${soft(s)}">spent ${vnd(out)}</span></div>
       ${items.map((t) => txRow(t, S)).join('')}
     </div>`;
   }
-  if (days.length > S.lim) h += '<button class="btn-wide" data-a="more">Xem các ngày trước</button>';
+  if (days.length > S.lim) h += '<button class="btn-wide" data-a="more">Show earlier days</button>';
   return h;
 }
 
@@ -235,7 +235,7 @@ export function cal(S, T) {
   const dim = daysInMonth(S.vy, S.vm);
   const offset = (new Date(S.vy, S.vm, 1).getDay() + 6) % 7;
 
-  let h = monthNav(S, T, `<span class="lbl">target ngày ${short(dayTg) || '0'}</span>`);
+  let h = monthNav(S, T, `<span class="lbl">daily target ${short(dayTg) || '0'}</span>`);
   h += `<div class="cal">${WEEK_HEAD.map((w) => `<div class="lbl center">${w}</div>`).join('')}`;
   for (let i = 0; i < offset; i++) h += '<div></div>';
   for (let d = 1; d <= dim; d++) {
@@ -249,15 +249,15 @@ export function cal(S, T) {
   h += '</div>';
 
   h += `<div class="legend lbl">
-    <span><i style="background:var(--card)"></i>Dưới 80%</span>
+    <span><i style="background:var(--card)"></i>Under 80%</span>
     <span><i style="background:var(--warn-bg)"></i>80–100%</span>
-    <span><i style="background:var(--danger-bg)"></i>Vượt target</span>
+    <span><i style="background:var(--danger-bg)"></i>Over target</span>
   </div>`;
 
   const items = store.between(S.sel, S.sel);
   h += `<div class="card">
-    <div class="row"><span class="strong">${S.sel === td ? 'Hôm nay' : dayLabel(S.sel)}</span><span class="lbl">chi ${vnd(store.sum(S.sel, S.sel))}</span></div>
-    ${items.length ? items.map((t) => txRow(t, S)).join('') : empty('Không có khoản nào')}
+    <div class="row"><span class="strong">${S.sel === td ? 'Today' : dayLabel(S.sel)}</span><span class="lbl">spent ${vnd(store.sum(S.sel, S.sel))}</span></div>
+    ${items.length ? items.map((t) => txRow(t, S)).join('') : empty('No entries')}
   </div>`;
   return h;
 }
@@ -282,7 +282,7 @@ export function chart(S, T) {
 
   /* ----- Vẽ cột ----- */
   const W = 340, H = 160, bw = W / dim, ty = H - (dayTg / max) * H;
-  let g = `<svg viewBox="0 0 ${W} ${H + 18}" width="100%" role="img" aria-label="Chi tiêu từng ngày trong tháng">`;
+  let g = `<svg viewBox="0 0 ${W} ${H + 18}" width="100%" role="img" aria-label="Daily spending this month">`;
   vals.forEach((v, i) => {
     if (v === null) return;
     const hh = Math.max(v ? 2 : 0, (v / max) * H);
@@ -307,21 +307,23 @@ export function chart(S, T) {
 
   let h = monthNav(S, T) + `<div class="card">${g}</div>`;
   h += `<div class="grid2">
-    <div class="card stat"><div class="lbl">Trung bình/ngày</div><div class="strong">${vnd(avg)}</div></div>
-    <div class="card stat"><div class="lbl">${top ? `Cao nhất · ngày ${topDay}` : 'Cao nhất'}</div><div class="strong">${vnd(top)}</div></div>
+    <div class="card stat"><div class="lbl">Daily average</div><div class="strong">${vnd(avg)}</div></div>
+    <div class="card stat"><div class="lbl">${top ? `Highest · day ${topDay}` : 'Highest'}</div><div class="strong">${vnd(top)}</div></div>
   </div>`;
 
   /* ----- Tỉ lệ theo danh mục ----- */
   const cs = OUT_CATS.map((c) => [c, store.sum(a, b, 'out', c)]).filter((x) => x[1]).sort((x, y) => y[1] - x[1]);
-  h += `<div class="card"><div class="lbl">Tỉ lệ theo danh mục</div>${cs.length ? cs.map(([c, v]) =>
+  h += `<div class="card"><div class="lbl">Share by category</div>${cs.length ? cs.map(([c, v]) =>
     `<div class="cat-line"><div class="row small"><span>${c}</span><span class="lbl">${vnd(v)} · ${Math.round((v / total) * 100)}%</span></div>${bar(v / cs[0][1], 'ok', 'var(--text)')}</div>`).join('')
-    : empty('Chưa có dữ liệu')}</div>`;
+    : empty('No data yet')}</div>`;
   return h;
 }
 
 /* =========================================================
    8. Đặt target
    ========================================================= */
+
+const MONTHS_SHORT = (T) => monthName(T.getFullYear(), T.getMonth()).split(' ')[0];
 
 const moneyInput = (key, v) =>
   `<input class="money" data-k="${esc(key)}" inputmode="numeric" value="${Number(v).toLocaleString('vi-VN')}">`;
@@ -333,20 +335,20 @@ export function target(S, T) {
   const auto = (id, label, hint) =>
     `<div class="row field"><span>${label}<br><span class="lbl">${hint}</span></span><span class="money ro" id="${id}"></span></div>`;
 
-  let h = secHead('Đặt target', '<button class="btn-sm" data-a="tab" data-v="home">Đóng</button>');
+  let h = secHead('Set targets', '<button class="btn-sm" data-a="tab" data-v="home">Close</button>');
 
   /* ----- Target tổng: chỉ nhập ngày, tuần / tháng tự nhân ----- */
-  h += `<div class="card"><div class="lbl" style="margin-bottom:4px">Target tổng (₫)</div>
-    <div class="row field"><span>Mỗi ngày</span>${moneyInput('day', D.day)}</div>
-    ${auto('autoWeek', 'Mỗi tuần', 'tự tính · × 7 ngày')}
-    ${auto('autoMonth', 'Mỗi tháng', `tự tính · × ${dim} ngày của tháng ${T.getMonth() + 1}`)}
+  h += `<div class="card"><div class="lbl" style="margin-bottom:4px">Total target (₫)</div>
+    <div class="row field"><span>Per day</span>${moneyInput('day', D.day)}</div>
+    ${auto('autoWeek', 'Per week', 'auto · × 7 days')}
+    ${auto('autoMonth', 'Per month', `auto · × ${dim} days in ${MONTHS_SHORT(T)}`)}
   </div>`;
 
   /* ----- Theo danh mục ----- */
-  h += `<div class="card"><div class="lbl" style="margin-bottom:4px">Theo danh mục, mỗi tháng (₫)</div>${OUT_CATS
+  h += `<div class="card"><div class="lbl" style="margin-bottom:4px">By category, per month (₫)</div>${OUT_CATS
     .map((c) => `<div class="row field"><span>${c}</span>${moneyInput(`ct|${c}`, D.ct[c])}</div>`).join('')}
     <div id="catsum" class="lbl" style="margin-top:8px"></div></div>`;
-  return `${h}<div class="err" id="err"></div><button class="btn-primary" data-a="savet">Lưu target</button>`;
+  return `${h}<div class="err" id="err"></div><button class="btn-primary" data-a="savet">Save targets</button>`;
 }
 
 /** Cập nhật số tự tính (tuần, tháng, tổng danh mục) khi đang gõ, không vẽ lại cả màn */
@@ -360,7 +362,7 @@ export function targetSummary(S) {
 
   const total = OUT_CATS.reduce((x, c) => x + (S.dr.ct[c] || 0), 0);
   const over = total > t.month;
-  set('catsum', `<span style="color:${over ? 'var(--warn)' : 'var(--text-2)'}">Tổng danh mục ${vnd(total)} / target tháng ${vnd(t.month)}${over ? ' · đang vượt' : ''}</span>`);
+  set('catsum', `<span style="color:${over ? 'var(--warn)' : 'var(--text-2)'}">Categories total ${vnd(total)} / monthly target ${vnd(t.month)}${over ? ' · over' : ''}</span>`);
 }
 
 /* =========================================================
@@ -376,39 +378,39 @@ export function backup(S) {
   const span = store.span;
   const last = store.lastBackup;
 
-  let h = secHead('Sao lưu dữ liệu', '<button class="btn-sm" data-a="tab" data-v="home">Đóng</button>');
+  let h = secHead('Backup', '<button class="btn-sm" data-a="tab" data-v="home">Close</button>');
 
   /* ----- Tình trạng dữ liệu ----- */
   h += `<div class="card">
-    <div class="lbl">Dữ liệu trên điện thoại này</div>
-    <div class="strong" style="margin-top:2px">${store.count} khoản</div>
-    <div class="lbl">${span ? `Từ ${fmtDate(span[0])} đến ${fmtDate(span[1])}` : 'Chưa có khoản nào'}</div>
-    <div class="lbl" style="margin-top:6px">Lần sao lưu gần nhất: ${last && !isNaN(new Date(last)) ? fmtDate(iso(new Date(last))) : 'chưa có'}</div>
-    <button class="btn-primary" data-a="export">Xuất file sao lưu</button>
+    <div class="lbl">Data on this phone</div>
+    <div class="strong" style="margin-top:2px">${store.count} ${store.count === 1 ? 'entry' : 'entries'}</div>
+    <div class="lbl">${span ? `From ${fmtDate(span[0])} to ${fmtDate(span[1])}` : 'No entries yet'}</div>
+    <div class="lbl" style="margin-top:6px">Last backup: ${last && !isNaN(new Date(last)) ? fmtDate(iso(new Date(last))) : 'never'}</div>
+    <button class="btn-primary" data-a="export">Export backup file</button>
   </div>`;
 
   /* ----- Khôi phục ----- */
   h += `<div class="card">
-    <div class="strong">Khôi phục từ file</div>
-    <div class="lbl" style="margin:2px 0 10px">Dùng khi đổi điện thoại, chuyển từ bản web sang app, hoặc lỡ mất dữ liệu</div>
-    <label class="btn-wide file-btn">Chọn file sao lưu<input type="file" id="importFile" accept=".json,application/json"></label>
+    <div class="strong">Restore from file</div>
+    <div class="lbl" style="margin:2px 0 10px">Use this when you change phones, move from the web version to the app, or lose your data</div>
+    <label class="btn-wide file-btn">Choose backup file<input type="file" id="importFile" accept=".json,application/json"></label>
   </div>`;
 
   /* ----- Xác nhận thay thế ----- */
   if (S.pending) {
     h += `<div class="card warn-card">
-      <div class="strong">File có ${S.pending.tx.length} khoản</div>
-      <div class="lbl" style="margin:2px 0 10px">Toàn bộ dữ liệu hiện tại (${store.count} khoản) sẽ bị thay bằng dữ liệu trong file.</div>
+      <div class="strong">File has ${S.pending.tx.length} ${S.pending.tx.length === 1 ? 'entry' : 'entries'}</div>
+      <div class="lbl" style="margin:2px 0 10px">All current data (${store.count}) will be replaced by the data in this file.</div>
       <div class="row gap">
-        <button class="btn-wide" data-a="impcancel">Huỷ</button>
-        <button class="btn-wide danger-fill" data-a="impok">Thay thế</button>
+        <button class="btn-wide" data-a="impcancel">Cancel</button>
+        <button class="btn-wide danger-fill" data-a="impok">Replace</button>
       </div>
     </div>`;
   }
 
   h += `<div class="note lbl">
-    Dữ liệu chỉ nằm trong điện thoại, không gửi lên mạng.<br>
-    Gỡ app hoặc xoá dữ liệu app sẽ mất dữ liệu → nên xuất file định kỳ và lưu vào Google Drive.
+    Your data stays on this phone and is never uploaded.<br>
+    Uninstalling the app or clearing its data deletes everything → export a backup regularly and keep it in Google Drive.
   </div>`;
   return h;
 }

@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'ChiTieu'
+rootProject.name = 'ExpenseTracker'
 include ':app'

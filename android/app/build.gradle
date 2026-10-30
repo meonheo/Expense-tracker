@@ -1,5 +1,5 @@
 /* =========================================================
-   App Android "Chi tiêu"
+   App Android "Expense tracker"
    - Giao diện = các file web ở thư mục gốc repo (index.html, css, js, icons)
      được copy vào app lúc build, nên sửa web là APK cũng đổi theo
    - Số phiên bản lấy từ số lần build trên GitHub (BUILD_NUMBER)
@@ -17,7 +17,7 @@ def webAssetsDir = layout.buildDirectory.dir('generated/web-assets').get().asFil
 
 def copyWebAssets = tasks.register('copyWebAssets', Copy) {
     from(rootProject.file('..')) {
-        include 'index.html', 'manifest.webmanifest', 'css/**', 'js/**', 'icons/**'
+        include 'index.html', 'manifest.webmanifest', 'css/**', 'js/**', 'icons/**', 'fonts/**'
     }
     into(new File(webAssetsDir, 'www'))
 }

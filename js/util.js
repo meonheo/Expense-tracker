@@ -4,8 +4,12 @@
    ========================================================= */
 
 /* ---------- Ngày tháng ---------- */
-export const WEEKDAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-export const WEEK_HEAD = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+export const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+export const WEEK_HEAD = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+export const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+/** 2026, 9 → 'October 2026' (tháng tính từ 0) */
+export const monthName = (y, m) => `${MONTHS[m]} ${y}`;
 
 export const pad = (n) => String(n).padStart(2, '0');
 
@@ -26,10 +30,16 @@ export const today = () => {
 
 export const daysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
 
-/** 'YYYY-MM-DD' → 'T5, 29/10' */
+/** 'YYYY-MM-DD' → 'Thu, 29/10' */
 export const dayLabel = (s) => {
   const d = parseISO(s);
-  return `${WEEKDAYS[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
+  return `${WEEKDAYS[d.getDay()]}, ${dayMonth(s)}`;
+};
+
+/** 'YYYY-MM-DD' → '29/10' */
+export const dayMonth = (s) => {
+  const d = parseISO(s);
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
 };
 
 /** Khoảng ngày [bắt đầu, kết thúc] dạng ISO. Tuần bắt đầu thứ Hai. */
@@ -67,9 +77,9 @@ export const esc = (s) =>
 /** 30000 → '30.000 ₫' */
 export const vnd = (n) => `${Math.round(n).toLocaleString('vi-VN')} ₫`;
 
-/** Số gọn cho ô nhỏ: 1250000 → '1,3tr', 45000 → '45k' */
+/** Số gọn cho ô nhỏ: 1250000 → '1.3M', 45000 → '45k' */
 export const short = (n) => {
-  if (n >= 1e6) return `${String(Math.round(n / 1e5) / 10).replace('.', ',')}tr`;
+  if (n >= 1e6) return `${Math.round(n / 1e5) / 10}M`;
   if (n >= 1000) return `${Math.round(n / 1000)}k`;
   return n > 0 ? String(Math.round(n)) : '';
 };

@@ -5,7 +5,7 @@
    Khi sửa danh sách file, tăng số phiên bản CACHE.
    ========================================================= */
 
-const CACHE = 'expense-tracker-v5';
+const CACHE = 'expense-tracker-v6';
 const ASSETS = [
   './',
   'index.html',
@@ -17,7 +17,10 @@ const ASSETS = [
   'manifest.webmanifest',
   'icons/icon-192.png',
   'icons/icon-512.png',
-  'icons/icon-maskable-512.png'
+  'icons/icon-maskable-512.png',
+  'fonts/DIN-Medium.ttf',
+  'fonts/DIN-Bold.ttf',
+  'fonts/DIN-Black.ttf'
 ];
 const NETWORK_TIMEOUT = 3000;
 

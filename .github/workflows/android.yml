@@ -61,7 +61,7 @@ jobs:
         run: gradle assembleRelease --no-daemon --stacktrace
 
       - name: Đặt tên file
-        run: cp android/app/build/outputs/apk/release/app-release.apk "ChiTieu-v1.0.${{ github.run_number }}.apk"
+        run: cp android/app/build/outputs/apk/release/app-release.apk "ExpenseTracker-v1.0.${{ github.run_number }}.apk"
 
       - name: Đăng lên Releases
         env:
@@ -69,7 +69,7 @@ jobs:
           NOTES: ${{ github.event.head_commit.message }}
         run: |
           TAG="v1.0.${{ github.run_number }}"
-          gh release create "$TAG" "ChiTieu-$TAG.apk" \
-            --title "Chi tiêu $TAG" \
+          gh release create "$TAG" "ExpenseTracker-$TAG.apk" \
+            --title "Expense tracker $TAG" \
             --notes "${NOTES:-Bản build thủ công}" \
             --latest

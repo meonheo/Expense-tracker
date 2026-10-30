@@ -35,7 +35,7 @@ const S = {
 };
 
 const say = (msg, type = 'ok') => { S.msg = msg; S.msgType = type; };
-const SAVE_FAIL = 'Không lưu được. Bộ nhớ trình duyệt có thể đã đầy.';
+const SAVE_FAIL = "Couldn't save. Storage may be full.";
 
 /* =========================================================
    2. Vẽ giao diện
@@ -101,7 +101,7 @@ function pressKey(k) {
 function saveTx() {
   const n = Number(S.amt);
   if (!n) {
-    S.err = 'Nhập số tiền trước';
+    S.err = 'Enter an amount first';
     document.getElementById('err').textContent = S.err;
     return;
   }
@@ -112,7 +112,7 @@ function saveTx() {
     render();
     return;
   }
-  say(`Đã lưu ${vnd(n)} · ${S.cat}`);
+  say(`Saved ${vnd(n)} · ${S.cat}`);
   S.amt = '';
   S.note = '';
   // Lần nhập sau mặc định quay về Khoản chi (loại hay dùng nhất)
@@ -124,21 +124,21 @@ function saveTargets() {
   const D = S.dr;
   const errBox = document.getElementById('err');
   if (!D.day) {
-    errBox.textContent = 'Target mỗi ngày phải lớn hơn 0';
+    errBox.textContent = 'Daily target must be more than 0';
     return;
   }
   if (!store.setTargets(D.day, D.ct)) {
     errBox.textContent = SAVE_FAIL;
     return;
   }
-  say('Đã cập nhật target');
+  say('Target updated');
   go('home');
 }
 
 /* ---------- Sao lưu ---------- */
 function exportBackup() {
   const text = store.exportText();
-  const fileName = `chi-tieu-sao-luu-${iso(today())}.json`;
+  const fileName = `expense-tracker-backup-${iso(today())}.json`;
 
   // APK: Android mở hộp thoại chọn nơi lưu (Drive, Tải xuống…), lưu xong tự báo
   if (NATIVE && NATIVE.saveBackup) {
@@ -155,7 +155,7 @@ function exportBackup() {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
-  say('Đã xuất file sao lưu. Kiểm tra trong mục Tải xuống.');
+  say('Backup exported. Check your Downloads.');
   render();
 }
 
@@ -164,14 +164,14 @@ async function readBackupFile(file) {
     S.pending = store.parseBackup(await file.text());
   } catch (err) {
     S.pending = null;
-    say('File không đúng định dạng sao lưu của app', 'err');
+    say("This isn't an Expense tracker backup file", 'err');
   }
   render();
 }
 
 function confirmImport() {
   if (!S.pending) return;
-  if (store.replaceAll(S.pending)) say(`Đã khôi phục ${S.pending.tx.length} khoản`);
+  if (store.replaceAll(S.pending)) say(`Restored ${S.pending.tx.length} entries`);
   else say(SAVE_FAIL, 'err');
   S.pending = null;
   render();

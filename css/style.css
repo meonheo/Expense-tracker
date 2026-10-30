@@ -9,6 +9,16 @@
 /* =========================================================
    1. Màu & font
    ========================================================= */
+
+/* ---------- Font DIN: 3 độ đậm để phân tầng nội dung ----------
+   Medium 500 → chữ thường, nhãn, nút
+   Bold   700 → tiêu đề, số tiền trong danh sách, mục đang chọn
+   Black  900 → số tiền lớn (tổng đã chi, số đang nhập)
+   Font không có ký tự ₫ → trình duyệt tự lấy ₫ từ font hệ thống */
+@font-face { font-family: "DIN"; src: url("../fonts/DIN-Medium.ttf") format("truetype"); font-weight: 100 500; font-display: swap; }
+@font-face { font-family: "DIN"; src: url("../fonts/DIN-Bold.ttf") format("truetype"); font-weight: var(--w-strong) 800; font-display: swap; }
+@font-face { font-family: "DIN"; src: url("../fonts/DIN-Black.ttf") format("truetype"); font-weight: 900; font-display: swap; }
+
 :root {
   --bg: #f4f2ee;
   --card: #ffffff;
@@ -27,8 +37,11 @@
   --danger-bg: #fbe5e2;
   --success: #2e7d32;
 
-  --serif: "Iowan Old Style", "Noto Serif", Georgia, "Times New Roman", serif;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font: "DIN", var(--sans);
+  --w-text: 500;      /* DIN Medium */
+  --w-strong: 700;    /* DIN Bold */
+  --w-display: 900;   /* DIN Black */
   --radius: 12px;
   color-scheme: light;
 }
@@ -62,7 +75,8 @@
 html, body { margin: 0; background: var(--bg); }
 body {
   color: var(--text);
-  font-family: var(--sans);
+  font-family: var(--font);
+  font-weight: var(--w-text);
   font-size: 15px;
   line-height: 1.5;
   -webkit-tap-highlight-color: transparent;
@@ -79,7 +93,7 @@ button:disabled { opacity: 0.35; cursor: default; }
 }
 
 .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.top h1 { font-size: 20px; font-weight: 600; margin: 0; }
+.top h1 { font-size: 20px; font-weight: var(--w-strong); margin: 0; }
 .top-actions { display: flex; gap: 6px; }
 
 .toast {
@@ -98,7 +112,7 @@ button:disabled { opacity: 0.35; cursor: default; }
 }
 .tabbar-in { max-width: 480px; margin: 0 auto; display: flex; align-items: center; padding: 6px 8px 8px; }
 .tab { flex: 1; border: 0; background: transparent; height: 44px; font-size: 12px; color: var(--muted); }
-.tab.on { color: var(--text); font-weight: 600; }
+.tab.on { color: var(--text); font-weight: var(--w-strong); }
 .tab-add {
   flex: 0 0 50px; width: 50px; height: 50px; margin: 0 6px; border: 0; border-radius: 50%;
   background: var(--text); color: var(--bg);
@@ -112,12 +126,12 @@ button:disabled { opacity: 0.35; cursor: default; }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .row.gap { gap: 10px; }
 .row.small { font-size: 13px; }
-.row.total { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 6px; font-weight: 600; }
+.row.total { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 6px; font-weight: var(--w-strong); }
 .lbl { font-size: 12px; color: var(--text-2); }
 .muted { color: var(--muted); }
-.strong { font-weight: 600; }
+.strong { font-weight: var(--w-strong); }
 .center { text-align: center; }
-.h2 { font-size: 17px; font-weight: 600; }
+.h2 { font-size: 17px; font-weight: var(--w-strong); }
 .sec-head { margin: 14px 0 10px; }
 .empty { color: var(--muted); font-size: 13px; padding-top: 8px; }
 .err { font-size: 13px; color: var(--danger); min-height: 4px; }
@@ -127,7 +141,7 @@ button:disabled { opacity: 0.35; cursor: default; }
   background: var(--card); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 14px; margin-bottom: 10px;
 }
-.big { font-family: var(--serif); font-size: 36px; line-height: 1.15; margin: 4px 0; }
+.big { font-size: 38px; font-weight: var(--w-display); line-height: 1.15; margin: 4px 0; letter-spacing: -0.01em; }
 .big.xl { font-size: 40px; }
 
 .bar { height: 6px; background: var(--seg); border-radius: 3px; overflow: hidden; margin-top: 6px; }
@@ -136,7 +150,7 @@ button:disabled { opacity: 0.35; cursor: default; }
 /* ---------- Chọn đoạn (Ngày/Tuần/Tháng, Chi/Thu) ---------- */
 .seg { display: flex; background: var(--seg); border-radius: 10px; padding: 3px; gap: 2px; margin: 12px 0; }
 .seg button { flex: 1; border: 0; background: transparent; height: 34px; font-size: 14px; color: var(--text-2); border-radius: 8px; }
-.seg button.on { background: var(--card); color: var(--text); font-weight: 600; }
+.seg button.on { background: var(--card); color: var(--text); font-weight: var(--w-strong); }
 
 /* ---------- Nút ---------- */
 .btn-sm {
@@ -146,7 +160,7 @@ button:disabled { opacity: 0.35; cursor: default; }
 .btn-sm.danger { height: 30px; margin-top: 4px; color: var(--danger); border-color: var(--danger); }
 .btn-primary {
   width: 100%; height: 48px; margin-top: 12px; border: 0; border-radius: 12px;
-  background: var(--text); color: var(--bg); font-size: 16px; font-weight: 600;
+  background: var(--text); color: var(--bg); font-size: 16px; font-weight: var(--w-strong);
 }
 .btn-primary:active, .btn-wide:active, .keypad button:active { transform: scale(0.98); }
 .btn-wide {
@@ -154,7 +168,7 @@ button:disabled { opacity: 0.35; cursor: default; }
   background: transparent; font-size: 14px;
   display: flex; align-items: center; justify-content: center;
 }
-.btn-wide.danger-fill { background: var(--danger); border-color: var(--danger); color: #fff; font-weight: 600; }
+.btn-wide.danger-fill { background: var(--danger); border-color: var(--danger); color: #fff; font-weight: var(--w-strong); }
 .icon-btn {
   width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent;
   display: flex; align-items: center; justify-content: center; color: var(--text);
@@ -168,7 +182,7 @@ input {
 }
 input:focus { border-color: var(--accent); }
 input.money { width: 140px; text-align: right; }
-.money.ro { width: 140px; text-align: right; padding-right: 13px; font-weight: 600; } /* số tự tính, không sửa được */
+.money.ro { width: 140px; text-align: right; padding-right: 13px; font-weight: var(--w-strong); } /* số tự tính, không sửa được */
 
 /* ---------- Giao dịch ---------- */
 .tx { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid var(--border); cursor: pointer; }
@@ -191,7 +205,7 @@ input.money { width: 140px; text-align: right; }
 .amount { text-align: center; padding: 6px 0 12px; }
 .pick {
   display: inline-block; margin-top: 4px; padding: 3px 12px; border-radius: 999px;
-  background: var(--accent-bg); color: var(--accent); font-size: 13px; font-weight: 600;
+  background: var(--accent-bg); color: var(--accent); font-size: 13px; font-weight: var(--w-strong);
 }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
@@ -199,7 +213,7 @@ input.money { width: 140px; text-align: right; }
   border: 1px solid var(--border-2); background: transparent; color: var(--text-2);
   font-size: 14px; display: inline-flex; align-items: center; gap: 5px;
 }
-.chip.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.chip.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: var(--w-strong); }
 @media (prefers-color-scheme: dark) { .chip.on { color: #0e1a2a; } }
 
 .inputs { display: flex; gap: 8px; margin-top: 12px; }
@@ -222,7 +236,7 @@ input.money { width: 140px; text-align: right; }
 .cell .d { font-size: 14px; }
 .cell.warn { background: var(--warn-bg); }
 .cell.over { background: var(--danger-bg); }
-.cell.today .d { font-weight: 700; }
+.cell.today .d { font-weight: var(--w-display); }
 .cell.future { background: transparent; }
 .cell.future .d { color: var(--muted); }
 .cell.sel { border-color: var(--text); }

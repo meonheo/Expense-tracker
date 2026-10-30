@@ -209,7 +209,7 @@ public class MainActivity extends Activity {
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("*/*");
         try {
-            startActivityForResult(Intent.createChooser(i, "Chọn file sao lưu"), REQ_PICK_FILE);
+            startActivityForResult(Intent.createChooser(i, "Choose backup file"), REQ_PICK_FILE);
             return true;
         } catch (ActivityNotFoundException e) {
             fileCallback = null;
@@ -227,7 +227,7 @@ public class MainActivity extends Activity {
             startActivityForResult(i, REQ_SAVE_FILE);
         } catch (ActivityNotFoundException e) {
             pendingBackup = null;
-            toastJs("Máy không hỗ trợ lưu file", true);
+            toastJs("This phone can't save files here", true);
         }
     }
 
@@ -246,9 +246,9 @@ public class MainActivity extends Activity {
                 try (OutputStream os = getContentResolver().openOutputStream(uri, "w")) {
                     if (os == null) throw new IllegalStateException("no stream");
                     os.write(pendingBackup.getBytes(StandardCharsets.UTF_8));
-                    toastJs("Đã lưu file sao lưu", false);
+                    toastJs("Backup saved", false);
                 } catch (Exception e) {
-                    toastJs("Không lưu được file sao lưu", true);
+                    toastJs("Couldn't save the backup", true);
                 }
             }
             pendingBackup = null;
